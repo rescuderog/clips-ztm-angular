@@ -24,6 +24,12 @@ export class ModalService {
     });
   }
 
+  unregister(id: string) {
+    this.modals = this.modals.filter(
+      element => element.id !== id
+    )
+  }
+
   //method that returns the modal status as a boolean
   isModalOpen(id: string): boolean {
     return Boolean(this.modals.find(element => element.id === id)?.visible);
