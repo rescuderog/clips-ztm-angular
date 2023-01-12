@@ -9,4 +9,7 @@ import { FormControl } from '@angular/forms';
 export class InputComponent {
   //we create a form control to receive the values passed down by the form
   @Input() control: FormControl = new FormControl();
+  @Input() type: string = 'text';
+  @Input() placeholder: string = '';
+  @Input() format: string = ''
 }

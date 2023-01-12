@@ -1,10 +1,13 @@
-<input [formControl]="control" type="text"
+<input [formControl]="control" [type]="type"
         class="block w-full py-1.5 px-3 text-gray-200 border border-gray-400 transition
             duration-500 focus:outline-none rounded bg-transparent focus:border-indigo-400"
-        placeholder="Enter Name" />
+        [placeholder]="placeholder" [mask]="format"/>
 
 <!-- Checking for errors (validators) -->
-<ng-container *ngIf="control.dirty && control.touched">
+<ng-container *ngIf="control.dirty">
+    <p *ngIf="control.hasError('pattern')" class="text-red-400">
+        Passwords must be at least 8 characters long and must contain a lowercase and uppercase character and a number.
+    </p>
     <p *ngIf="control.hasError('required')" class="text-red-400">
         Field is required.
     </p>
@@ -15,5 +18,22 @@
         It must be at least
         {{ control.errors?.['minlength'].requiredLength }}
         characters long.
+    </p>
+    <p *ngIf="control.hasError('maxlength')" class="text-red-400">
+        The value you inputted is 
+        {{ control.errors?.['maxlength'].actualLength }}
+        characters long.
+        It must be at maximum
+        {{ control.errors?.['maxlength'].requiredLength }}
+        characters long.
+    </p>
+    <p *ngIf="control.hasError('email')" class="text-red-400">
+        You must enter a valid email.
+    </p>
+    <p *ngIf="control.hasError('min')" class="text-red-400">
+        Value too low.
+    </p>
+    <p *ngIf="control.hasError('max')" class="text-red-400">
+        Value too high.
     </p>
 </ng-container>
