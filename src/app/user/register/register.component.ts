@@ -35,6 +35,10 @@ export class RegisterComponent {
     Validators.maxLength(11)
   ]);
 
+  showAlert: boolean = false;
+  alertMsg: string = '';
+  alertColor: string = 'blue';
+
   registerForm = new FormGroup({
     name: this.name,
     email: this.email,
@@ -44,7 +48,11 @@ export class RegisterComponent {
     phoneNumber: this.phoneNumber
   });
 
+  //called by the NgSubmit event, we show an alert. TODO: implementing backend
+
   register() {
-    console.log("Form has been submitted");
+    this.showAlert = true;
+    this.alertMsg = 'Please wait, your account is being created';
+    this.alertColor = 'blue'
   }
 }
