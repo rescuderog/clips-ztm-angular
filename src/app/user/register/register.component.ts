@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { AngularFireAuth } from '@angular/fire/compat/auth'
+import { AngularFirestore } from '@angular/fire/compat/firestore'
 
 @Component({
   selector: 'app-register',
@@ -7,6 +9,13 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent {
+  //we inject the AngularFireAuth service for firebase authentication
+  constructor(
+    private auth: AngularFireAuth,
+    private db: AngularFirestore) {}
+
+  inSubmission = false;
+
   //we register the form via the FormGroup object as FormControl objects with their corresponding Validators
   name = new FormControl('', [
     Validators.required, 
@@ -50,9 +59,38 @@ export class RegisterComponent {
 
   //called by the NgSubmit event, we show an alert. TODO: implementing backend
 
-  register() {
+  async register() {
     this.showAlert = true;
     this.alertMsg = 'Please wait, your account is being created';
-    this.alertColor = 'blue'
+    this.alertColor = 'blue';
+    this.inSubmission = true;
+
+    //we use object destructuring to get the email and password values as simple variables
+
+    const {email, password} = this.registerForm.value;
+
+    //we talk with firebase, trying to create a user with email and password. we do that in async mode
+    try {
+      //auth service
+      const userCred = await this.auth.createUserWithEmailAndPassword(
+        email as string, password as string
+      );
+      //firestore service, adding the additional data, sans the password
+      await this.db.collection('users').add({
+        name: this.name.value,
+        email: this.email.value,
+        age: this.age.value,
+        phoneNumber: this.phoneNumber.value
+      });
+    } catch(e) {
+      console.error(e);
+      this.alertMsg = 'An unexpected error ocurred, please try again later.';
+      this.alertColor = 'red';
+      this.inSubmission = false;
+      return
+    }
+
+    this.alertMsg = 'Sucess! Your account has been created!';
+    this.alertColor = 'green';
   }
 }
