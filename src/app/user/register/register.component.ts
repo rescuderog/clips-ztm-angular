@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { AuthService } from 'src/app/services/auth.service';
 import IUser from 'src/app/models/user.model';
+import CustomAlert from 'src/app/models/alert.model';
 
 @Component({
   selector: 'app-register',
@@ -13,8 +14,6 @@ export class RegisterComponent {
   constructor(
     private auth: AuthService
   ) {}
-
-  inSubmission = false;
 
   //we register the form via the FormGroup object as FormControl objects with their corresponding Validators
   name = new FormControl<string>('', [
@@ -44,10 +43,8 @@ export class RegisterComponent {
     Validators.maxLength(11)
   ]);
 
-  showAlert: boolean = false;
-  alertMsg: string = '';
-  alertColor: string = 'blue';
-
+  alertObj = new CustomAlert();
+  
   registerForm = new FormGroup({
     name: this.name,
     email: this.email,
@@ -57,26 +54,19 @@ export class RegisterComponent {
     phoneNumber: this.phoneNumber
   });
 
-  //called by the NgSubmit event, we show an alert. TODO: implementing backend
+  //called by the NgSubmit event, we show an alert and register the user.
 
   async register() {
-    this.showAlert = true;
-    this.alertMsg = 'Please wait, your account is being created';
-    this.alertColor = 'blue';
-    this.inSubmission = true;
+    this.alertObj.setAlertNormal('Please wait, your account is being created', true);
 
     try {
       await this.auth.createUser(this.registerForm.value as IUser);
     } catch (e) {
       console.error(e);
-      this.alertMsg = 'An unexpected error ocurred, please try again later.';
-      this.alertColor = 'red';
-      this.inSubmission = false;
+      this.alertObj.setAlertError('An unexpected error ocurred, please try again later.');
       return
     }
 
-    this.alertMsg = 'Sucess! Your account has been created!';
-    this.alertColor = 'green';
-    this.inSubmission = false;
+    this.alertObj.setAlertSuccess('Sucess! Your account has been created!');
   }
 }
