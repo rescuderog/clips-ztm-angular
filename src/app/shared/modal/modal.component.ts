@@ -1,4 +1,4 @@
-import { Component, Input, ElementRef, OnInit } from '@angular/core';
+import { Component, Input, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import { ModalService } from 'src/app/services/modal.service';
 
 //separation of responsibilities of the modal components: this component, pertaining to the shared module
@@ -10,7 +10,7 @@ import { ModalService } from 'src/app/services/modal.service';
   templateUrl: './modal.component.html',
   styleUrls: ['./modal.component.css']
 })
-export class ModalComponent implements OnInit {
+export class ModalComponent implements OnInit, OnDestroy {
   // this property acts as the input of the value we pass down by the more specific modal as ID
   @Input() modalID = '';
   
@@ -18,8 +18,7 @@ export class ModalComponent implements OnInit {
 
   }
 
-  //moving the modal to the body to solve some CSS issues
-
+  //moving the modal to the body via teleportation to solve some possible CSS issues
   ngOnInit(): void {
     document.body.appendChild(this.el.nativeElement)
   }
@@ -27,6 +26,11 @@ export class ModalComponent implements OnInit {
   //closes the modal, doesn't need event handling as we're working with div elements only
   closeModal() {
     this.modal.toggleModal(this.modalID);
+  }
+
+  //destructor for the modal, we remove it from the DOM
+  ngOnDestroy(): void {
+    document.body.removeChild(this.el.nativeElement);
   }
 
 }
