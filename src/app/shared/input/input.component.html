@@ -36,4 +36,10 @@
     <p *ngIf="control.hasError('max')" class="text-red-400">
         Value too high.
     </p>
+    <p *ngIf="control.hasError('noMatch')" class="text-red-400">
+        Passwords do not match.
+    </p>
+    <p *ngIf="control.hasError('emailTaken')" class="text-red-400">
+        Email taken. Please try another email.
+    </p>
 </ng-container>

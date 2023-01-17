@@ -9,12 +9,17 @@ export class RegisterValidators {
             const matchingControl = group.get(matchingControName);
         
             if(!control || !matchingControl) {
+                console.error('Form controls could not be found on the FormGroup');
                 return { controlNotFound: false }
             }
 
             const error = control.value === matchingControl.value ? 
                 null :
-                { noMatch: true }
+                { noMatch: true };
+
+            //manually setting an error on the second form control to inform of the not matching strings
+            //if it matches, as the ternary op says, it automatically sets it to null
+            matchingControl.setErrors(error);
             return error
         }
     }

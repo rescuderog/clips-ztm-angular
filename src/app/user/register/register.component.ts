@@ -4,6 +4,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import IUser from 'src/app/models/user.model';
 import CustomAlert from 'src/app/models/alert.model';
 import { RegisterValidators } from '../validators/register-validators';
+import { EmailTaken } from '../validators/email-taken';
 
 @Component({
   selector: 'app-register',
@@ -13,7 +14,8 @@ import { RegisterValidators } from '../validators/register-validators';
 export class RegisterComponent {
   //we inject the AngularFireAuth service for firebase authentication
   constructor(
-    private auth: AuthService
+    private auth: AuthService,
+    private emailTaken: EmailTaken
   ) {}
 
   //we register the form via the FormGroup object as FormControl objects with their corresponding Validators
@@ -24,6 +26,8 @@ export class RegisterComponent {
   email = new FormControl<string>('', [
     Validators.required,
     Validators.email
+  ], [
+    this.emailTaken.validate
   ]);
   age = new FormControl<number | null>(null, [
     Validators.required,
