@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth'
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/compat/firestore'
 import IUser from '../models/user.model';
-import { Observable } from 'rxjs';
-import { map, delay } from 'rxjs/operators';
-import { Router } from '@angular/router';
+import { Observable, of } from 'rxjs';
+import { map, delay, filter, switchMap } from 'rxjs/operators';
+import { ActivatedRoute, NavigationEnd, Router} from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -17,11 +17,16 @@ export class AuthService {
   private usersCollection: AngularFirestoreCollection<IUser>;
   public isAuthenticated$: Observable<boolean>;
   public isAuthenticatedWithDelay$: Observable<boolean>;
+  //this property keeps track of whether the page the user is currently in requires login or not.
+  private redirect: boolean = false;
 
   constructor(    
     private auth: AngularFireAuth,
     private db: AngularFirestore,
-    private router: Router
+    //router class, to manage the redirects
+    private router: Router,
+    //provides access to info related with a route. i.e. its data object
+    private route: ActivatedRoute
     ) { 
     //we initialize the collection with the service
     this.usersCollection = db.collection('users')
@@ -31,9 +36,25 @@ export class AuthService {
         return object == null ? false : true;
       })
     );
+    //second pipe to add a fake delay to the previous observable so the transition isn't so abrupt
     this.isAuthenticatedWithDelay$ = this.isAuthenticated$.pipe(
       delay(1000)
     );
+    //we subscribe to this object and listen for the events emitted by the routing system (everytime it produces changes)
+    //in this case, because we only care about when the navigation ended (to get the latest data from the route)
+    //we filter it so it will only subscribe to objects that are of the NavigationEnd class
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd),
+      //we're not interested in the event anymore here. we just checked if the navigation ended so we could be sure it wouldn't have unexpected behaviour when grabbing the data
+      //now we actually grab the data from the route. We are now using the ActivatedRoute service, which stores all the values associated with the route the user is currently on.
+      map(e => this.route.firstChild),
+      //the ActivatedRoute service returns a ActivatedRoute object, from which we're only interested in its data observable, so we subscribe to that via the switchMap operator.
+      //route.firstChild can return both an Observable or just null. For that, we account for it via the coalescing operator ('??') so we can return a new empty Observable 
+      //if that's the case.
+      switchMap(route => route?.data ?? of({}))
+    ).subscribe((data) => {
+      this.redirect = data['authOnly'] ?? false
+    })
   }
 
   public async createUser(userData: IUser) {
@@ -66,14 +87,19 @@ export class AuthService {
   }
 
   //catches the event on logout and prevents default behavior, then logs out the user
+  //it was moved to the auth service to better modularize and serve the code
 
   public async logout ($event?: Event) {
     if($event) {
       $event.preventDefault();
     }
-      
+    
+    //we use the AngularFireAuth service to handle logout and cleanup the token
     await this.auth.signOut();
-    //finally, we redirect the user back to the home page
-    await this.router.navigateByUrl('/');
+
+    //finally, we redirect the user back to the home page if the redirect property is true
+    if (this.redirect) {
+      await this.router.navigateByUrl('/');
+    }
   }
 }
