@@ -27,11 +27,12 @@ export default class CustomAlert {
 
     public setAlertSuccess(
         alertMsg: string,
+        inSubmission?: boolean
     ) {
         this.alertMsg = alertMsg;
         this.alertColor = 'green';
         this.showAlert = true;
-        this.inSubmission = false;
+        this.inSubmission = inSubmission ?? false;
     }
 
     //getters to allow the template to check the different values

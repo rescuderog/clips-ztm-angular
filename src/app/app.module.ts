@@ -4,6 +4,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth'
 import { AngularFirestoreModule } from '@angular/fire/compat/firestore'
+import { AngularFireStorageModule } from '@angular/fire/compat/storage'
 
 import { environment } from 'src/environments/environment';
 
@@ -33,7 +34,11 @@ import { NotFoundComponent } from './not-found/not-found.component';
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireAuthModule,
     AngularFirestoreModule,
+    AngularFireStorageModule,
     VideoModule,
+    
+    //putting the main routing component at last so the wildcard doesn't catch any route
+    //that's comprised in any other child routing module
     AppRoutingModule
   ],
   providers: [],
