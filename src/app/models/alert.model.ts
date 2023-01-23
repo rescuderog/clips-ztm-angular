@@ -35,6 +35,11 @@ export default class CustomAlert {
         this.inSubmission = inSubmission ?? false;
     }
 
+    //quick method to set the showAlert off manually
+    public setShowAlert(showAlert: boolean) {
+        this.showAlert = showAlert
+    }
+
     //getters to allow the template to check the different values
 
     public get gInSubmission() {

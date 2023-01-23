@@ -2,6 +2,7 @@ import firebase from 'firebase/compat/app'
 
 //custom interface to enforce the elements in the clip object to send to the database
 export interface IClip {
+    docID?: string;
     uid: string;
     displayName: string;
     title: string;
