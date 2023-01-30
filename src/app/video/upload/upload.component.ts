@@ -8,6 +8,7 @@ import { v4 as uuid } from 'uuid';
 import CustomAlert from 'src/app/models/alert.model';
 import { last, switchMap } from 'rxjs/operators';
 import { ClipService } from 'src/app/services/clip.service';
+import { FfmpegService } from 'src/app/services/ffmpeg.service';
 
 @Component({
   selector: 'app-upload',
@@ -49,12 +50,15 @@ export class UploadComponent implements OnDestroy {
     private storage: AngularFireStorage,
     private auth: AngularFireAuth,
     private clipsService: ClipService,
-    private router: Router
+    private router: Router,
+    public ffmpegService: FfmpegService
   ) {
     //we subscribe to the user observable and get the user object to our user property 
     auth.user.subscribe(user => {
       this.user = user
     });
+    //we're initializing FFmpeg as early as possible due to the size of the package
+    this.ffmpegService.init();
   }
 
   //function for handling the event when a file is dropped onto the div and file storage
